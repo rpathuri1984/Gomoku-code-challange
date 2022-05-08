@@ -3,6 +3,5 @@ public enum Stones : byte
 {
     None,
     X,
-    O,
-    Y
+    O
 };
