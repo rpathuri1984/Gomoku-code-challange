@@ -1,19 +1,19 @@
 ﻿namespace Gomoku.Logic;
 
-public class GomokuBoard
+public class GomokuBoard : IGomokuBoard
 {
     #region Private Members
 
-    private readonly Cell[,] _tiles;
+    private readonly Cell[,] _cells;
 
     #endregion
 
     #region Public Props
 
     public int Height { get; }
-        public int Width { get; }
+    public int Width { get; }
 
-    public Cell this[int x, int y] => _tiles[x, y];
+    public Cell this[int x, int y] => _cells[x, y];
 
     #endregion
 
@@ -27,12 +27,12 @@ public class GomokuBoard
 
         Width = width;
         Height = height;
-        _tiles = new Cell[Width, Height];
+        _cells = new Cell[Width, Height];
         for (var i = 0; i < Width; i++)
         {
             for (var j = 0; j < Height; j++)
             {
-                _tiles[i, j] = new Cell(i, j)
+                _cells[i, j] = new Cell(i, j)
                 {
                     Stone = (Stone)Stones.None,
                 };
@@ -41,7 +41,7 @@ public class GomokuBoard
     }
     #endregion
 
-    public void IterateTiles(
+    public void IterateCells(
       int x,
       int y,
       Directions direction,
@@ -65,11 +65,12 @@ public class GomokuBoard
 
         var startingOffset = iterateSelf ? 0 : 1;
 
+        // look for same stone in 8 directions by traversing up to max_win_stones_count. ex. 5
         switch (direction)
         {
             case Directions.Left:
                 for (int i = x - startingOffset, j = y;
-                    i >= 0 && predicate(_tiles[i, j]);
+                    i >= 0 && predicate(_cells[i, j]);
                     i--)
                 {
                 }
@@ -78,7 +79,7 @@ public class GomokuBoard
 
             case Directions.Right:
                 for (int i = x + startingOffset, j = y;
-                    i < Width && predicate(_tiles[i, j]);
+                    i < Width && predicate(_cells[i, j]);
                     i++)
                 {
                 }
@@ -87,7 +88,7 @@ public class GomokuBoard
 
             case Directions.Up:
                 for (int i = x, j = y - startingOffset;
-                    j >= 0 && predicate(_tiles[i, j]);
+                    j >= 0 && predicate(_cells[i, j]);
                     j--)
                 {
                 }
@@ -96,7 +97,7 @@ public class GomokuBoard
 
             case Directions.Down:
                 for (int i = x, j = y + startingOffset;
-                    j < Height && predicate(_tiles[i, j]);
+                    j < Height && predicate(_cells[i, j]);
                     j++)
                 {
                 }
@@ -105,7 +106,7 @@ public class GomokuBoard
 
             case Directions.UpLeft:
                 for (int i = x - startingOffset, j = y - startingOffset;
-                    i >= 0 && j >= 0 && predicate(_tiles[i, j]);
+                    i >= 0 && j >= 0 && predicate(_cells[i, j]);
                     i--, j--)
                 {
                 }
@@ -114,17 +115,17 @@ public class GomokuBoard
 
             case Directions.DownRight:
                 for (int i = x + startingOffset, j = y + startingOffset;
-                    i < Width && j < Height && predicate(_tiles[i, j]);
+                    i < Width && j < Height && predicate(_cells[i, j]);
                     i++, j++)
                 {
-                    ;
+
                 }
 
                 break;
 
             case Directions.UpRight:
                 for (int i = x + startingOffset, j = y - startingOffset;
-                    i < Width && j >= 0 && predicate(_tiles[i, j]);
+                    i < Width && j >= 0 && predicate(_cells[i, j]);
                     i++, j--)
                 {
                 }
@@ -133,7 +134,7 @@ public class GomokuBoard
 
             case Directions.DownLeft:
                 for (int i = x - startingOffset, j = y + startingOffset;
-                    i >= 0 && j < Height && predicate(_tiles[i, j]);
+                    i >= 0 && j < Height && predicate(_cells[i, j]);
                     i--, j++)
                 {
                 }

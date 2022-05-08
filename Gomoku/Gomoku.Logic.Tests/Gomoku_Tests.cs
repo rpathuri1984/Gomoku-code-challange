@@ -6,7 +6,7 @@ namespace Gomoku.Logic.Tests
 {
     public class Tests
     {
-        private Game? GomokuGame;
+        private GomokuGame? GomokuGame;
         private IList<Player> players;
 
         [SetUp]
@@ -23,82 +23,83 @@ namespace Gomoku.Logic.Tests
         public void Play_should_return_success()
         {
             // arrange
-            GomokuGame = new Game(15, 15, players);
-            PlayResult isGaveOver = null;
+            GomokuGame = new GomokuGame(15, 15, players);
+            PlayResult result = null;
 
             // act
-            GomokuGame.Play(0, 1);
-            isGaveOver = GomokuGame.Play(1, 1);
-            Assert.IsFalse(isGaveOver.IsGameOver);
+            GomokuGame.PlaceStone(0, 1);
+            result = GomokuGame.PlaceStone(1, 1);
+            Assert.IsFalse(result.IsGameOver);
 
-            GomokuGame.Play(0, 2);
-            isGaveOver = GomokuGame.Play(1, 2);
-            Assert.IsFalse(isGaveOver.IsGameOver);
+            GomokuGame.PlaceStone(0, 2);
+            result = GomokuGame.PlaceStone(1, 2);
+            Assert.IsFalse(result.IsGameOver);
 
-            GomokuGame.Play(0, 3);
-            isGaveOver = GomokuGame.Play(1, 3);
-            Assert.IsFalse(isGaveOver.IsGameOver);
+            GomokuGame.PlaceStone(0, 3);
+            result = GomokuGame.PlaceStone(1, 3);
+            Assert.IsFalse(result.IsGameOver);
 
-            GomokuGame.Play(0, 4);
-            isGaveOver = GomokuGame.Play(1, 4);
-            Assert.IsFalse(isGaveOver.IsGameOver);
+            GomokuGame.PlaceStone(0, 4);
+            result = GomokuGame.PlaceStone(1, 4);
+            Assert.IsFalse(result.IsGameOver);
 
-            isGaveOver = GomokuGame.Play(0, 5);
-            Assert.IsTrue(isGaveOver.IsGameOver);
+            result = GomokuGame.PlaceStone(0, 5);
+            Assert.IsTrue(result.IsGameOver);
         }
 
 
         [Test]
-        public void Play_should_return_Player1_should_wins()
+        public void Play_should_return_Player1_wins()
         {
             // arrange
-            GomokuGame = new Game(15, 15, players);
+            GomokuGame = new GomokuGame(15, 15, players);
 
             // act
-            GomokuGame.Play(4, 4);
-            GomokuGame.Play(5, 3);
+            GomokuGame.PlaceStone(4, 4);
+            GomokuGame.PlaceStone(5, 3);
 
-            GomokuGame.Play(3, 5);
-            GomokuGame.Play(4, 6);
+            GomokuGame.PlaceStone(3, 5);
+            GomokuGame.PlaceStone(4, 6);
 
-            GomokuGame.Play(2, 6);
-            GomokuGame.Play(3, 6);
+            GomokuGame.PlaceStone(2, 6);
+            GomokuGame.PlaceStone(3, 6);
 
-            GomokuGame.Play(1, 7);
-            GomokuGame.Play(6, 8);
+            GomokuGame.PlaceStone(1, 7);
+            GomokuGame.PlaceStone(6, 8);
 
-            PlayResult isGaveOver = GomokuGame.Play(0, 8);
+            PlayResult result = GomokuGame.PlaceStone(0, 8);
             
             // assert
-            Assert.IsTrue(isGaveOver.IsGameOver);
-            Assert.AreEqual(5, isGaveOver?.WinningLine?.Count());
+            Assert.IsTrue(result.IsGameOver);
+            Assert.AreEqual($"Game is over. {players.First().Name} wins.", result.Message);
         }
 
         [Test]
-        public void Play_should_return_Player2_should_wins()
+        public void Play_should_return_Player2_wins()
         {
             // arrange
-            GomokuGame = new Game(15, 15, players);
+            GomokuGame = new GomokuGame(15, 15, players);
 
             // act
-            GomokuGame.Play(6, 5);
-            GomokuGame.Play(6, 3);
+            GomokuGame.PlaceStone(6, 5);
+            GomokuGame.PlaceStone(6, 3);
 
-            GomokuGame.Play(7, 8);
-            GomokuGame.Play(7, 4);
+            GomokuGame.PlaceStone(7, 8);
+            GomokuGame.PlaceStone(7, 4);
 
-            GomokuGame.Play(8, 6);
-            GomokuGame.Play(9, 6);
+            GomokuGame.PlaceStone(8, 6);
+            GomokuGame.PlaceStone(9, 6);
 
-            GomokuGame.Play(7, 6);
-            GomokuGame.Play(10, 7);
+            GomokuGame.PlaceStone(7, 6);
+            GomokuGame.PlaceStone(10, 7);
 
-            GomokuGame.Play(5, 4);
-            PlayResult isGaveOver = GomokuGame.Play(8, 5);
+            GomokuGame.PlaceStone(5, 4);
+            PlayResult result = GomokuGame.PlaceStone(8, 5);
 
             // assert
-            Assert.IsTrue(isGaveOver.IsGameOver);
-            Assert.AreEqual(5, isGaveOver?.WinningLine?.Count());
+            Assert.IsTrue(result.IsGameOver);
+            Assert.AreEqual($"Game is over. {players.Last().Name} wins.", result.Message);
+            Assert.IsNotNull(result.ToString());
         }
     }
 }

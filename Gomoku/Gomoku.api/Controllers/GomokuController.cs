@@ -12,7 +12,7 @@ namespace Gomoku.api.Controllers
         #region Private Fields
 
         private readonly IMemoryCache _memoryCache;
-        private Game? _gomokuGame;
+        private GomokuGame? _gomokuGame;
         private IList<Player> _players;
         #endregion
 
@@ -27,8 +27,8 @@ namespace Gomoku.api.Controllers
 
 
         [HttpGet]
-        [Route("StartGame")]
-        public IActionResult StartGame()
+        [Route("CrateBoard")]
+        public IActionResult CrateBoard()
         {
             _players = new List<Player>()
                         {
@@ -36,24 +36,25 @@ namespace Gomoku.api.Controllers
                           new Player("Player 2", new Stone(Stones.O)),
                         };
 
-            _gomokuGame = new Game(15, 15, _players);
+            _gomokuGame = new GomokuGame(15, 15, _players);
 
-            Guid gameKey = Guid.NewGuid();
+            string gameKey = HashString($"{Guid.NewGuid()}{DateTime.Today.ToLongDateString()} {DateTime.Today.ToLongDateString()}");
+
             _memoryCache.Set(gameKey.ToString(), _gomokuGame);
 
             return Ok(new { gameKey });
         }
 
         [HttpGet]
-        [Route("{gameKey}/Play/{x}/{y}")]
-        public IActionResult Play(string gameKey, int x, int y)
+        [Route("{gameKey}/PlaceStone")]
+        public IActionResult PlaceStone(string gameKey, int x, int y)
         {
 
-            _gomokuGame = _memoryCache.Get(gameKey) as Game;
+            _gomokuGame = _memoryCache.Get(gameKey) as GomokuGame;
 
             if (_gomokuGame != null)
             {
-                var result = _gomokuGame.Play(x, y);
+                var result = _gomokuGame.PlaceStone(x, y);
 
                 _memoryCache.Set(gameKey, _gomokuGame);
                 return Ok(result);
@@ -64,11 +65,34 @@ namespace Gomoku.api.Controllers
         }
 
         [HttpGet]
-        [Route("{gameKey}/Close")]
-        public IActionResult CloseGame(string gameKey)
+        [Route("{gameKey}/CloseBoard")]
+        public IActionResult CloseBoard(string gameKey)
         {
             _memoryCache.Remove(gameKey);
             return Ok();
+        }
+
+        private string HashString(string text, string salt = "")
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return string.Empty;
+            }
+
+            // Uses SHA256 to create the hash
+            using (var sha = new System.Security.Cryptography.SHA256Managed())
+            {
+                // Convert the string to a byte array first, to be processed
+                byte[] textBytes = System.Text.Encoding.UTF8.GetBytes(text + salt);
+                byte[] hashBytes = sha.ComputeHash(textBytes);
+
+                // Convert back to a string, removing the '-' that BitConverter adds
+                string hash = BitConverter
+                    .ToString(hashBytes)
+                    .Replace("-", String.Empty);
+
+                return hash;
+            }
         }
     }
 }
