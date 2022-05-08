@@ -21,6 +21,22 @@ public class GomokuGame : IGomokuGame
     #endregion
 
     #region Constructor
+
+    public GomokuGame()
+    {
+        IList<Player> players = new List<Player>()
+                        {
+                          new Player("Player 1", new Stone(Stones.X)),
+                          new Player("Player 2", new Stone(Stones.O)),
+                        };
+
+        GomokuBoard = new GomokuBoard(15, 15);
+        MaxMove = 15 * 15;
+        Manager = new PlayerManager(players);
+        _history = new Stack<Cell>();
+        IsOver = false;
+    }
+
     public GomokuGame(int width, int height, IEnumerable<Player> players)
     {
         if (height <= WIN_STONES_COUNT || width <= WIN_STONES_COUNT)

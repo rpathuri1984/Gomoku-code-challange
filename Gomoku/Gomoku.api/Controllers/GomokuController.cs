@@ -1,7 +1,7 @@
 ﻿using Gomoku.Logic;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.Security.Cryptography;
 
 namespace Gomoku.api.Controllers
 {
@@ -12,15 +12,18 @@ namespace Gomoku.api.Controllers
         #region Private Fields
 
         private readonly IMemoryCache _memoryCache;
-        private GomokuGame? _gomokuGame;
-        private IList<Player> _players;
+        private readonly ILogger<GomokuController> _logger;
+        private IGomokuGame? _gomokuGame;
+        private readonly IServiceProvider _serviceProvider;
         #endregion
 
         #region Constructor
 
-        public GomokuController(IMemoryCache memoryCache)
+        public GomokuController(IMemoryCache memoryCache, ILogger<GomokuController> logger,IServiceProvider serviceProvider)
         {
             _memoryCache = memoryCache;
+            _logger = logger;
+            _serviceProvider = serviceProvider;
         }
 
         #endregion
@@ -30,15 +33,10 @@ namespace Gomoku.api.Controllers
         [Route("CrateBoard")]
         public IActionResult CrateBoard()
         {
-            _players = new List<Player>()
-                        {
-                          new Player("Player 1", new Stone(Stones.X)),
-                          new Player("Player 2", new Stone(Stones.O)),
-                        };
+            _gomokuGame = _serviceProvider.GetService<IGomokuGame>();
 
-            _gomokuGame = new GomokuGame(15, 15, _players);
-
-            string gameKey = HashString($"{Guid.NewGuid()}{DateTime.Today.ToLongDateString()} {DateTime.Today.ToLongDateString()}");
+            // generating unique string to register game object in memory
+            string gameKey = HashString($"{Guid.NewGuid()}{DateTime.Today.ToLongDateString()} {DateTime.Today.ToLongTimeString()}");
 
             _memoryCache.Set(gameKey.ToString(), _gomokuGame);
 
@@ -49,18 +47,17 @@ namespace Gomoku.api.Controllers
         [Route("{gameKey}/PlaceStone")]
         public IActionResult PlaceStone(string gameKey, int x, int y)
         {
-
-            _gomokuGame = _memoryCache.Get(gameKey) as GomokuGame;
+            _gomokuGame = _memoryCache.Get(gameKey) as IGomokuGame;
 
             if (_gomokuGame != null)
             {
                 var result = _gomokuGame.PlaceStone(x, y);
-
                 _memoryCache.Set(gameKey, _gomokuGame);
                 return Ok(result);
             }
 
-            return BadRequest(new { ErrorMessage = "Game Not Initilized. use GET: /StartGame" });
+            _logger.LogError($"Board having id[{gameKey}] not intialized.");
+            return BadRequest(new { ErrorMessage = $"Game Not Initilized. use GET: /CrateBoard" });
 
         }
 
@@ -80,7 +77,7 @@ namespace Gomoku.api.Controllers
             }
 
             // Uses SHA256 to create the hash
-            using (var sha = new System.Security.Cryptography.SHA256Managed())
+            using (var sha = SHA256.Create())
             {
                 // Convert the string to a byte array first, to be processed
                 byte[] textBytes = System.Text.Encoding.UTF8.GetBytes(text + salt);
