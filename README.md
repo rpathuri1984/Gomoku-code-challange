@@ -3,7 +3,7 @@
 
 ## Steps to test api using postman
 
-**1. Open Postman Collection :** [Postman gomoku-api workspace](https://www.postman.com/orbital-module-administrator-53905838/workspace/gomoku-api)
+**1. Open Postman Collection :** [Postman gomoku-api workspace](https://www.postman.com/orbital-module-administrator-53905838/workspace/gomoku-api/collection/20867718-f5547cd1-80a1-4099-9595-45afb837d792?ctx=documentation)
 
 **2. Choose Environment : Cloud or Local**
     ![alt text](https://github.com/rpathuri1984/Gomoku-code-challange/blob/main/images/Choose_environment.jpg?raw=true)
